@@ -20,6 +20,7 @@ class _PairingGuidePageState extends State<PairingGuidePage> {
       ),
       body: Container(
         padding: EdgeInsets.all(20),
+        margin: EdgeInsets.only(bottom: 70),
         child: _buildColumn(context),
       ),
     );

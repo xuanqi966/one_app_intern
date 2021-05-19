@@ -35,6 +35,7 @@ class RegisterSuccessPage extends StatelessWidget {
       height: double.infinity,
       width: double.infinity,
       padding: EdgeInsets.all(15),
+      margin: EdgeInsets.only(bottom: 70),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
