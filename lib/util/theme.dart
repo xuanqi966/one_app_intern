@@ -21,6 +21,11 @@ ThemeData basicTheme() {
             fontSize: 16,
             color: Colors.black,
             fontWeight: FontWeight.bold),
+        headline4: base.headline4.copyWith(
+            // card headline
+            fontFamily: 'Raleway-Bold',
+            fontSize: 20,
+            color: Colors.black),
         bodyText1: base.bodyText1.copyWith(
             // normal body
             fontFamily: 'Raleway-Regular',
