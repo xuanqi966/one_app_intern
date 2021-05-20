@@ -68,7 +68,7 @@ class _SheetPageState extends State<SheetPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ListTile(
-              leading: Icon(Icons.ac_unit),
+              leading: Icon(Icons.info_outline),
               title: Text(
                 "About this device",
                 style: Theme.of(context).textTheme.headline4,
@@ -83,7 +83,7 @@ class _SheetPageState extends State<SheetPage> {
               color: Colors.grey[200],
             ),
             ListTile(
-              leading: Icon(Icons.ac_unit),
+              leading: Icon(Icons.feedback_outlined),
               title: Text(
                 "Send feedback",
                 style: Theme.of(context).textTheme.headline4,
@@ -98,7 +98,7 @@ class _SheetPageState extends State<SheetPage> {
               color: Colors.grey[200],
             ),
             ListTile(
-              leading: Icon(Icons.ac_unit),
+              leading: Icon(Icons.help_outline),
               title: Text(
                 "Help",
                 style: Theme.of(context).textTheme.headline4,
