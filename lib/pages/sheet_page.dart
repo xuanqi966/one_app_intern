@@ -137,7 +137,7 @@ class _SheetPageState extends State<SheetPage> {
 
   void pressSendFeedback() {
     setState(() {
-      currentButton = "\"Sned feedback\" has been pressed!";
+      currentButton = "\"Send feedback\" has been pressed!";
     });
     Navigator.pop(context);
   }
