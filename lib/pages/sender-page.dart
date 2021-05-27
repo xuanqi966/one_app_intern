@@ -20,47 +20,52 @@ class _SenderPageState extends State<SenderPage> {
   // build methods
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Image.asset('assets/images/osim_logo.png'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
-      body: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).requestFocus(new FocusNode());
-        },
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                    margin: EdgeInsets.symmetric(vertical: 20),
-                    child: Text("UDP Sender",
-                        style: Theme.of(context).textTheme.headline1)),
-                _buildIp(),
-                _buildPort(),
-                _buildMsg(),
-                Container(
-                  width: 250,
-                  padding: EdgeInsets.all(20),
-                  child: OutlinedButton(
-                      onPressed: () {
-                        if (!_formKey.currentState.validate()) {
-                          return;
-                        }
-                        _formKey.currentState.save();
-                        udpSend(_port, _address, _message);
-                      },
-                      child: Text('Send Message',
-                          style: Theme.of(context).textTheme.button)),
-                )
-              ],
-            ),
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).requestFocus(new FocusNode());
+      },
+      child: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                  margin: EdgeInsets.symmetric(vertical: 20),
+                  child: Text("UDP Sender",
+                      style: Theme.of(context).textTheme.headline1)),
+              _buildIp(),
+              _buildPort(),
+              _buildMsg(),
+              Container(
+                width: 250,
+                padding: EdgeInsets.all(20),
+                child: OutlinedButton(
+                    onPressed: () {
+                      if (!_formKey.currentState.validate()) {
+                        return;
+                      }
+                      _formKey.currentState.save();
+
+                      udpSend(_port, _address, _message);
+
+                      _formKey.currentState.reset();
+
+                      showSentDialog(
+                          context,
+                          (_address == null)
+                              ? "Message Broadcasted"
+                              : "Message Sent",
+                          (_address == null)
+                              ? '255.255.255.255'
+                              : _address.toString(),
+                          _port.toString(),
+                          _message);
+                    },
+                    child: Text('Send Message',
+                        style: Theme.of(context).textTheme.button)),
+              )
+            ],
           ),
         ),
       ),
@@ -147,6 +152,32 @@ class _SenderPageState extends State<SenderPage> {
         onFieldSubmitted: (_) {},
       ),
     );
+  }
+
+  void showSentDialog(
+      BuildContext context, String title, String ip, String port, String msg) {
+    Widget okButton = TextButton(
+        onPressed: () => Navigator.of(context).pop(), child: Text("OK"));
+    AlertDialog sentDialog = AlertDialog(
+      title: Text(title),
+      content: SizedBox(
+        height: 150,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Dest IP: " + ip),
+            Text("Dest port: " + port),
+            Text("Message: " + msg)
+          ],
+        ),
+      ),
+      actions: [okButton],
+    );
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return sentDialog;
+        });
   }
 }
 
