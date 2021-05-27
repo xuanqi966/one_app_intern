@@ -16,10 +16,6 @@ class _TabPageState extends State<TabPage> {
     return Scaffold(
       appBar: AppBar(
         title: Image.asset('assets/images/osim_logo.png'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
       ),
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(

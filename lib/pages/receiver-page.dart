@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:one_app_intern/models/message.dart';
-import 'dart:io';
 
 import 'package:udp/udp.dart';
 
@@ -10,30 +9,54 @@ class ReceiverPage extends StatefulWidget {
 }
 
 class _ReceiverPageState extends State<ReceiverPage> {
-  TextEditingController _controller = new TextEditingController();
+  //========================= Global variables =========================//
   int _myPort;
+  var udpReceiver;
+  bool isReceiving = false;
+  // Progress bar circular, receiver open, button change
+  List<Message> _messages = [];
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  List<Message> _messages = [];
-  var udpReceiver;
-
+  //========================= Helper functions =========================//
   void udpReceive(int myPort) async {
-    udpReceiver = await UDP.bind(Endpoint.any(port: Port(8082)));
+    udpReceiver = await UDP.bind(Endpoint.any(port: Port(myPort)));
 
     await udpReceiver.listen((datagram) {
       var message = String.fromCharCodes(datagram.data);
-      var senderAddress = datagram.address.toString();
-
+      var senderAddress = datagram.address.address;
       _updateMsgList(senderAddress, message);
     });
   }
 
   void _updateMsgList(String senderAddress, String message) {
     setState(() {
-      _messages.add(Message(senderAddress, message));
+      _messages.add(Message(senderAddress, message, DateTime.now()));
     });
   }
 
+  void _receiveHandler() {
+    if (!_formKey.currentState.validate()) {
+      return;
+    }
+    _formKey.currentState.save();
+
+    setState(() {
+      isReceiving = true;
+    });
+    udpReceive(_myPort);
+  }
+
+  void _terminateHandler() {
+    setState(() {
+      isReceiving = false;
+      _messages = [];
+      _myPort = null;
+    });
+    udpReceiver.close();
+    _formKey.currentState.reset();
+  }
+
+  //========================= Widget building =========================//
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -54,24 +77,36 @@ class _ReceiverPageState extends State<ReceiverPage> {
             Container(
                 margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 alignment: Alignment.bottomLeft,
-                child: _buildHeadings("Messages")),
+                child: Row(
+                  children: [
+                    _buildHeadings("Messages"),
+                    isReceiving
+                        ? Container(
+                            margin: EdgeInsets.only(left: 10),
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(),
+                          )
+                        : Container()
+                  ],
+                )),
             _buildMessageDisplay(),
-            Container(
-              width: 250,
-              padding: EdgeInsets.all(20),
-              child: OutlinedButton(
-                  onPressed: () {
-                    if (!_formKey.currentState.validate()) {
-                      return;
-                    }
-                    _formKey.currentState.save();
-                  },
-                  child: Text('Receive',
-                      style: Theme.of(context).textTheme.button)),
-            )
+            (isReceiving)
+                ? _buildButton("Stop", _terminateHandler)
+                : _buildButton("Receive", _receiveHandler),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildButton(String text, Function onPressed) {
+    return Container(
+      width: 250,
+      padding: EdgeInsets.all(20),
+      child: OutlinedButton(
+          onPressed: onPressed,
+          child: Text(text, style: Theme.of(context).textTheme.button)),
     );
   }
 
@@ -85,7 +120,7 @@ class _ReceiverPageState extends State<ReceiverPage> {
               hintText: 'My Port Number',
               border: OutlineInputBorder(),
               labelStyle: TextStyle(fontSize: 16)),
-          textInputAction: TextInputAction.next,
+          textInputAction: TextInputAction.done,
           keyboardType: TextInputType.number,
           validator: (String value) {
             if (!isNumeric(value)) {
@@ -107,11 +142,11 @@ class _ReceiverPageState extends State<ReceiverPage> {
     return Container(
       height: 300,
       margin: EdgeInsets.symmetric(horizontal: 10),
-      //padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
           border: Border.all(color: Colors.grey, width: 2),
           borderRadius: BorderRadius.circular(5)),
       child: ListView.builder(
+        reverse: true,
         itemCount: _messages.length,
         itemBuilder: (ctx, index) {
           return _buildMessageListTile(_messages[index]);
@@ -123,8 +158,8 @@ class _ReceiverPageState extends State<ReceiverPage> {
 
 Widget _buildMessageListTile(Message msg) {
   return ListTile(
-    title: Text(msg.senderAddress),
-    subtitle: Text(msg.data),
+    title: Text(msg.data),
+    subtitle: Text(msg.senderAddress + "   " + msg.dateTime.toString()),
   );
 }
 
